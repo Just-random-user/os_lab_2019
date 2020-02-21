@@ -1,4 +1,21 @@
+./background.sh &
+
+    sh-4.2$ cat 1>file_with_containments
+    this file contains some texts
+    if you wish to read them, you should open the file
+    try to do it with cat instruction
+    ^C
+
+    [1]+  Stopped(SIGTTIN)        cat
+    sh-4.2$ cat file_with_containments
+    this file contains some texts
+    if you wish to read them, you should open the file
+    try to do it with cat instruction
+
+clear
+wc file_with_containments 
+
 cat ./cake_rhymes.txt | grep "cake" > ./cake.txt
 rm useful_file >/dev/null 2>&1
 ./hello.sh
-chmod o+x file1
+chmod u+x file1
