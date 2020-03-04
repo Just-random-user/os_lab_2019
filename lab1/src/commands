@@ -39,3 +39,5 @@ sh-4.2$ ./average.sh 25 100
 Amount of arguments is 2, their's average is 62
 
 od -An -d -N300 /dev/random | cat >numbers.txt
+./average.sh $(cat numbers.txt)
+Amount of arguments is 150, their's average is 34839
