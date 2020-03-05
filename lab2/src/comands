@@ -1,0 +1,18 @@
+sh-4.2$ gcc main.c swap.c -o swap
+sh-4.2$ ./swap
+
+sh-4.2$ gcc main.c revert_string.c -o program
+sh-4.2$ ./program string
+Reverted: gnirts
+
+gcc main.o -L./ -lrevstr -o static_rs
+ar rcs librevstr.a revert_string.o
+
+sh-4.2$ gcc -c main.c          
+sh-4.2$ gcc -c -fPIC revert_string.c
+sh-4.2$ gcc -shared revert_string.o -o librevstrdyn.so
+sh-4.2$ gcc main.o -L./ -lrevstrdyn -o dyn_rev_str
+sh-4.2$ LD_LIBRARY_PATH=$(pwd)
+sh-4.2$ ./dyn_rev_str 425
+Reverted: 524
+
