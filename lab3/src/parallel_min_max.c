@@ -40,18 +40,27 @@ int main(int argc, char **argv) {
         switch (option_index) {
           case 0:
             seed = atoi(optarg);
-            // your code here
-            // error handling
+            if (seed < 1)
+            {
+                printf("Seed is a positive number");
+                return 1;
+            }
             break;
           case 1:
             array_size = atoi(optarg);
-            // your code here
-            // error handling
+            if (array_size < 1)
+            {
+                printf("Array size is a positive number");
+                return 1;
+            }
             break;
           case 2:
             pnum = atoi(optarg);
-            // your code here
-            // error handling
+            if (pnum < 1)
+            {
+                printf("Pnum (amount of child proceses) is a positive number");
+                return 1;
+            }
             break;
           case 3:
             with_files = true;
@@ -91,6 +100,9 @@ int main(int argc, char **argv) {
   struct timeval start_time;
   gettimeofday(&start_time, NULL);
 
+  //my code goes here
+  int chunk_size = array_size / pnum;
+
   for (int i = 0; i < pnum; i++) {
     pid_t child_pid = fork();
     if (child_pid >= 0) {
@@ -98,11 +110,15 @@ int main(int argc, char **argv) {
       active_child_processes += 1;
       if (child_pid == 0) {
         // child process
-
-        // parallel somehow
+        struct MinMax item;
+        if (i != pnum - 1)
+            item = GetMinMax(array, i * chunk_size, (i + 1) * chunk_size - 1);
+        else item = GetMinMax(array, i * chunk_size, array_size - 1);
 
         if (with_files) {
           // use files here
+          FILE* file = fopen("data.txt", "w+");
+
         } else {
           // use pipe here
         }
