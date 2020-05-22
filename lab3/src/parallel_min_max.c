@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
             array_size = atoi(optarg);
             if (array_size < 1)
             {
-                printf("Array size is a positive number");
+                printf("Array size is a positive number\n");
                 return 1;
             }
             break;
@@ -58,7 +58,12 @@ int main(int argc, char **argv) {
             pnum = atoi(optarg);
             if (pnum < 1)
             {
-                printf("Pnum (amount of child proceses) is a positive number");
+                printf("Pnum (amount of child proceses) is a positive number\n");
+                return 1;
+            }
+            if (pnum > array_size / 2)
+            {
+                printf("Usage of child processes, which number is more than half an array size is inexpedient\n");
                 return 1;
             }
             break;
@@ -103,6 +108,27 @@ int main(int argc, char **argv) {
   //my code goes here
   int chunk_size = array_size / pnum;
 
+  int fd[2];
+  FILE* file;
+
+  if (with_files)
+  {
+      file = fopen("data.txt", "w");
+      if (!file)
+      {
+        printf("Failed to create a file\n");
+        return 1;
+      }
+  }
+  else
+  {
+    if (pipe(fd) < 0)
+    {
+        printf("Cannot create a pipe\n");
+        return 1;
+    }
+  }
+
   for (int i = 0; i < pnum; i++) {
     pid_t child_pid = fork();
     if (child_pid >= 0) {
@@ -117,10 +143,10 @@ int main(int argc, char **argv) {
 
         if (with_files) {
           // use files here
-          FILE* file = fopen("data.txt", "w+");
-
+          fprintf(file, "%d, %d\n", item.min, item.max);
         } else {
           // use pipe here
+          write(fd[1], &item, sizeof(struct MinMax));
         }
         return 0;
       }
@@ -133,8 +159,15 @@ int main(int argc, char **argv) {
 
   while (active_child_processes > 0) {
     // your code here
-
+    wait(NULL);
     active_child_processes -= 1;
+  }
+
+  if (with_files)
+  {
+    fflush(file);
+    fclose(file);
+    file = fopen("data.txt", "r");
   }
 
   struct MinMax min_max;
@@ -147,14 +180,35 @@ int main(int argc, char **argv) {
 
     if (with_files) {
       // read from files
+      fscanf(file, "%d, %d\n", &min, &max);
+      if (min_max.min > min)
+      {
+          min_max.min = min;
+      }
+      if (min_max.max < max)
+      {
+          min_max.max = max;
+      }
     } else {
       // read from pipes
+      struct MinMax item;
+      read(fd[0], &item, sizeof(struct MinMax));
+      if (min_max.min > item.min)
+      {
+          min_max.min = item.min;
+      }
+      if(min_max.max < item.max)
+      {
+          min_max.max = item.max;
+      }
     }
-
+    /*
     if (min < min_max.min) min_max.min = min;
     if (max > min_max.max) min_max.max = max;
+    */
   }
-
+  if(with_files)
+    fclose(file);
   struct timeval finish_time;
   gettimeofday(&finish_time, NULL);
 

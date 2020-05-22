@@ -1,0 +1,42 @@
+First task is done:
+
+sh-4.2$ ./seqmm 410 46
+min: 26982984
+max: 2022903948
+
+Second ans third tasks are done:
+
+sh-4.2$ ./parallel --seed 410 --array_size 401 --pnum 46 --by_files
+Min: 11063079
+Max: 2142865330
+Elapsed time: 3.865000ms
+
+sh-4.2$ ./parallel --seed 410 --array_size 401 --pnum 46
+Min: 11063079
+Max: 2142865330
+Elapsed time: 2.781000ms
+
+It's faster when used a pipe instead of a file;
+
+Forth task:
+
+sh-4.2$ make
+gcc -o utils.o -c utils.c -std=c99 -I.
+gcc -o find_min_max.o -c find_min_max.c -std=c99 -I.
+gcc -o sequential_min_max find_min_max.o utils.o sequential_min_max.c -std=c99 -I.
+
+with completed "all" aim:
+
+sh-4.2$ make
+gcc -o utils.o -c utils.c -std=c99 -I.
+gcc -o find_min_max.o -c find_min_max.c -std=c99 -I.
+gcc -o sequential_min_max find_min_max.o utils.o sequential_min_max.c -std=c99 -I.
+gcc -o parallel_min_max utils.o find_min_max.o parallel_min_max.c -std=c99 -I.
+
+Fifth task (file "exec_seq"):
+
+sh-4.2$ ./exec_seq 410 401
+Output:
+min: 756578
+max: 2142865330
+
