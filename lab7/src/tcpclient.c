@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 	}
 	if (BUFSIZE == -1 || SERV_PORT == -1)
   {
-	  printf("Usage: %s --bufsize 100 --serv_port 10001\n", argv[0]);
+	  printf("Usage: %s --BUFSIZE <buffer_size> --SERVPORT <port>\n", argv[0]);
 	  return 1;
 	}
   int fd;

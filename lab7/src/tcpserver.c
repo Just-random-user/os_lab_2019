@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
   }
   if (BUFSIZE == -1 || SERV_PORT == -1)
   {
-    printf("Usage: %s --BUFSIZE 100 --SERV_PORT 10001 \n", argv[0]);
+    printf("Usage: %s --BUFSIZE <size_of_buffer> --SERV_PORT <port> \n", argv[0]);
     return 1;
   }
   const size_t kSize = sizeof(struct sockaddr_in);

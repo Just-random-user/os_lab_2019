@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     
   if (BUFSIZE == -1 || SERV_PORT == -1)
   {
-    printf("Usage: %s --BUFSIZE 100 --SERV_PORT 10050 \n", argv[0]);
+    printf("Usage: %s --BUFSIZE <buffer_size> --SERV_PORT <port> \n", argv[0]);
     return 1;
   }
   int sockfd, n;

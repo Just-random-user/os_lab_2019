@@ -39,34 +39,34 @@ int main(int argc, char **argv) {
 	      switch (option_index)
         {
 	        case 0:
-	          BUFSIZE = atoi(optarg);
-	          if (BUFSIZE <= 0)
+	        BUFSIZE = atoi(optarg);
+	        if (BUFSIZE < 1)
             {
 	            printf("BUFSIZE must be a positive number\n");
 	            return 1;
-	          }
-	          break;
+	        }
+	        break;
 	        case 1:
-	          SERV_PORT = atoi(optarg);
-	          if (SERV_PORT <= 0)
+	        SERV_PORT = atoi(optarg);
+	        if (SERV_PORT < 1)
             {
 	            printf("SERV_PORT must be a positive number\n");
 	            return 1;
-	          }
-	          break;
-          case 2:
-	          ADDR = optarg;
-	          break;
-	      }
+	        }
+	        break;
+            case 2:
+	            ADDR = optarg;
+	        break;
+	    }
 	    case '?':
-	      break;
-      default:
+	    break;
+        default:
 	      printf("getopt returned character code 0%o?\n", c);
 	  }
 	}
 	if (BUFSIZE == -1 || SERV_PORT == -1 || !strncmp(ADDR, "1", 3))
     {
-	  printf("Usage: %s --bufsize 100 --serv_port 10001\n", argv[0]);
+	  printf("Usage: %s --BUFSIZE <buffer_size> --SERVPORT <port> --ADDR <address>\n", argv[0]);
 	  return 1;
 	}  
   int sockfd, n;
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
   struct sockaddr_in servaddr;
   struct sockaddr_in cliaddr;
 
-  if (argc != 2) {
+  if (argc != 3) {
     printf("usage: client <IPaddress of server>\n");
     exit(1);
   }
