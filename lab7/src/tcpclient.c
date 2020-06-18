@@ -52,8 +52,8 @@ int main(int argc, char *argv[]) {
 	          }
 	          break;
 	        case 2:
-	          ADDR = optarg;
-	          break;
+	            ADDR = optarg;
+	            break;
 	      }
 	    case '?':
 	      break;
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 	}
 	if (BUFSIZE == -1 || SERV_PORT == -1)
   {
-	  printf("Usage: %s --BUFSIZE <buffer_size> --SERVPORT <port>\n", argv[0]);
+	  printf("Usage: %s --BUFSIZE <buffer_size> --SERV_PORT <port> --ADDR <address>\n", argv[0]);
 	  return 1;
 	}
   int fd;

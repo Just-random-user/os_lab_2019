@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
   struct sockaddr_in servaddr;
   struct sockaddr_in cliaddr;
 
-  if (argc != 3) {
+  if (argc < 4) {
     printf("usage: client <IPaddress of server>\n");
     exit(1);
   }
