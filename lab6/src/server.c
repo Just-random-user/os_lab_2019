@@ -12,27 +12,10 @@
 #include <sys/types.h>
 
 #include "pthread.h"
+#include "miscellanea.h"
 
-struct FactorialArgs {
-  uint64_t begin;
-  uint64_t end;
-  uint64_t mod;
-};
 
-uint64_t MultModulo(uint64_t a, uint64_t b, uint64_t mod) {
-  uint64_t result = 0;
-  a = a % mod;
-  while (b > 0) {
-    if (b % 2 == 1)
-      result = (result + a) % mod;
-    a = (a * 2) % mod;
-    b /= 2;
-  }
-
-  return result % mod;
-}
-
-uint64_t Factorial(const struct FactorialArgs *args) {
+uint64_t Factorial(const struct Args *args) {
   uint64_t ans = 1;
   for (uint64_t i = args->begin; i <= args->end; i++)
   {
@@ -44,7 +27,7 @@ uint64_t Factorial(const struct FactorialArgs *args) {
 }
 
 void *ThreadFactorial(void *args) {
-  struct FactorialArgs *fargs = (struct FactorialArgs *)args;
+  struct Args *fargs = (struct Args *)args;
   return (void *)(uint64_t *)Factorial(fargs);
 }
 
@@ -170,7 +153,7 @@ int main(int argc, char **argv) {
 
       uint64_t size = (end - begin + 1) / tnum;
 
-      struct FactorialArgs args[tnum];
+      struct Args args[tnum];
       for (uint32_t i = 0; i < tnum; i++) {
         args[i].begin = begin + i * size;
         args[i].mod = mod;

@@ -14,6 +14,8 @@
 
 #include <pthread.h>
 
+#include "miscellanea.h"
+
 struct Server {
   char ip[255];
   int port;
@@ -21,23 +23,8 @@ struct Server {
 
 typedef struct {
   struct sockaddr_in server;
-  uint64_t begin;
-  uint64_t end;
-  uint64_t mod;
-} Args;
-
-uint64_t MultModulo(uint64_t a, uint64_t b, uint64_t mod) {
-  uint64_t result = 0;
-  a = a % mod;
-  while (b > 0) {
-    if (b % 2 == 1)
-      result = (result + a) % mod;
-    a = (a * 2) % mod;
-    b /= 2;
-  }
-
-  return result % mod;
-}
+  struct Args base;
+} Arguments;
 
 bool ConvertStringToUI64(const char *str, uint64_t *val) {
   char *end = NULL;
@@ -54,7 +41,7 @@ bool ConvertStringToUI64(const char *str, uint64_t *val) {
   return true;
 }
 
-uint64_t SeverThread(Args *args)
+uint64_t SeverThread(Arguments *args)
 {
   int sck = socket(AF_INET, SOCK_STREAM, 0);
   if (sck < 0)
@@ -70,9 +57,9 @@ uint64_t SeverThread(Args *args)
   }
 
   char task[sizeof(uint64_t) * 3];
-  memcpy(task, &args->begin, sizeof(uint64_t));
-  memcpy(task + sizeof(uint64_t), &args->end, sizeof(uint64_t));
-  memcpy(task + 2 * sizeof(uint64_t), &args->mod, sizeof(uint64_t));
+  memcpy(task, &args->base.begin, sizeof(uint64_t));
+  memcpy(task + sizeof(uint64_t), &args->base.end, sizeof(uint64_t));
+  memcpy(task + 2 * sizeof(uint64_t), &args->base.mod, sizeof(uint64_t));
 
   if (send(sck, task, sizeof(task), 0) < 0)
   {
@@ -145,7 +132,7 @@ int main(int argc, char **argv) {
     } break;
 
     case '?':
-      printf("Args error\n");
+      printf("Arguments error\n");
       break;
     default:
       fprintf(stderr, "getopt returned character code 0%o?\n", c);
@@ -193,7 +180,7 @@ int main(int argc, char **argv) {
 
   uint64_t size = k / servers_num;
 
-  Args args[servers_num];
+  Arguments args[servers_num];
   pthread_t threads[servers_num];
   for (int i = 0; i < servers_num; i++)
   {
@@ -208,16 +195,16 @@ int main(int argc, char **argv) {
     args[i].server.sin_port = htons((uint64_t)to[i].port);
     args[i].server.sin_addr.s_addr = *((unsigned long *)hostname->h_addr_list);
 
-    args[i].begin = 1 + i * size;
+    args[i].base.begin = 1 + i * size;
     if (i == (servers_num - 1))
     {
-      args[i].end = k;
+      args[i].base.end = k;
     }
     else
     {
-      args[i].end = (i + 1) * size;
+      args[i].base.end = (i + 1) * size;
     }
-    args[i].mod = mod;
+    args[i].base.mod = mod;
 
     pthread_create(&threads[i], NULL, (void*)SeverThread, (void *)&args[i]);
   }
