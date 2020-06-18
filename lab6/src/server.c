@@ -34,8 +34,11 @@ uint64_t MultModulo(uint64_t a, uint64_t b, uint64_t mod) {
 
 uint64_t Factorial(const struct FactorialArgs *args) {
   uint64_t ans = 1;
-
-  // TODO: your code here
+  for (uint64_t i = args->begin; i <= args->end; i++)
+  {
+    ans = ans * (i % args->mod);
+  }
+  ans = ans % (args->mod);
 
   return ans;
 }
@@ -46,6 +49,7 @@ void *ThreadFactorial(void *args) {
 }
 
 int main(int argc, char **argv) {
+  pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
   int tnum = -1;
   int port = -1;
 
@@ -67,11 +71,19 @@ int main(int argc, char **argv) {
       switch (option_index) {
       case 0:
         port = atoi(optarg);
-        // TODO: your code here
+        if (port < 1)
+        {
+          printf("port is a positive number\n");
+          return 1;
+        }
         break;
       case 1:
         tnum = atoi(optarg);
-        // TODO: your code here
+        if (tnum < 1)
+        {
+          printf("tnum is a positive number\n");
+          return 1;
+        }
         break;
       default:
         printf("Index %d is out of options\n", option_index);
@@ -93,7 +105,7 @@ int main(int argc, char **argv) {
 
   int server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (server_fd < 0) {
-    fprintf(stderr, "Can not create server socket!");
+    fprintf(stderr, "Can not create server socket\n");
     return 1;
   }
 
@@ -107,7 +119,7 @@ int main(int argc, char **argv) {
 
   int err = bind(server_fd, (struct sockaddr *)&server, sizeof(server));
   if (err < 0) {
-    fprintf(stderr, "Can not bind to socket!");
+    fprintf(stderr, "Can not bind to socket!\n");
     return 1;
   }
 
@@ -154,30 +166,44 @@ int main(int argc, char **argv) {
       memcpy(&end, from_client + sizeof(uint64_t), sizeof(uint64_t));
       memcpy(&mod, from_client + 2 * sizeof(uint64_t), sizeof(uint64_t));
 
-      fprintf(stdout, "Receive: %llu %llu %llu\n", begin, end, mod);
+      fprintf(stdout, "Receive: %lu %lu %lu\n", begin, end, mod);
+
+      uint64_t size = (end - begin + 1) / tnum;
 
       struct FactorialArgs args[tnum];
       for (uint32_t i = 0; i < tnum; i++) {
-        // TODO: parallel somehow
-        args[i].begin = 1;
-        args[i].end = 1;
+        args[i].begin = begin + i * size;
         args[i].mod = mod;
+        if (i != 0)
+        {
+          args[i].begin++;
+        }
+        if (i == (tnum - 1))
+        {
+          args[i].end = end;
+        }
+        else
+        {
+          args[i].end = begin + (i + 1) * size;
+        }
 
         if (pthread_create(&threads[i], NULL, ThreadFactorial,
                            (void *)&args[i])) {
-          printf("Error: pthread_create failed!\n");
-          return 1;
+          printf("Unable to create a thread\n");
+          return -1;
         }
       }
 
       uint64_t total = 1;
       for (uint32_t i = 0; i < tnum; i++) {
+        pthread_mutex_lock(&mut);
         uint64_t result = 0;
         pthread_join(threads[i], (void **)&result);
         total = MultModulo(total, result, mod);
+        pthread_mutex_unlock(&mut);
       }
 
-      printf("Total: %llu\n", total);
+      printf("Total: %lu\n", total);
 
       char buffer[sizeof(total)];
       memcpy(buffer, &total, sizeof(total));
